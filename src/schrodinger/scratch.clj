@@ -5,7 +5,8 @@
     (land (nom :s0) (interdiction "Joey" "Punch" "Sausages"))
     (pos "A" (land (absentation "Joey") (nom :s1)))))
 
-(build-kripke sausages)
+(build-model sausages)
+;; -->
 
 ;; start
 [
