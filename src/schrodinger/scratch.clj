@@ -1,9 +1,5 @@
 (ns schrodinger.scratch)
 
-(def sausages
-  '(land
-    (land (nom :s0) (interdiction "Joey" "Punch" "Sausages"))
-    (pos "A" (land (absentation "Joey") (nom :s1)))))
 
 (build-model sausages)
 ;; -->
