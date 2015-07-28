@@ -1,43 +1,38 @@
 (ns schrodinger.core
   (:require [schrodinger.macros]
-            [clojure.core.logic]))
+            [clojure.core.logic]
+            [clojure.core.match :refer [match]]
+            [clojure.walk :as w]))
 
 ;; connectors as data structures, rules as functions
 ;; strategies as functions too
 
-(defn add-to-node
-  "Adds formulas fs to node w"
-  [w fs]
-  (assoc w :contents (concat (:contents w) fs)))
+(def data
+  [:and
+   [:and [:nom :A] :X]
+   [:pos :R [:and [:nom :B] :Y]]])
 
-(defn land [x y]
-  (let [w (this-node)]
-    (add-to-node w [x y])))
+(defn rewrite [node]
+  (letfn [(mand [xs res]
+            (if (or (keyword? xs) (empty? xs)) res
+                (match xs
+                       [:and a b] (set (mapcat #(mand % (conj res a b)) (rest xs)))
+                       [_ & _] (set (mapcat #(mand % res) (rest xs)))
+                       :else res))
+            )]
+    (mand node [])))
 
-(defn build-model
-  "Takes an input formula and attempts to build a Kripke model"
-  [f]
-  )
+
+(rewrite data)
+
 
 (def sausages
-  '(land
-    (land (nom :s0) (interdiction "Joey" "Punch" "Sausages"))
-    (pos "A" (land (absentation "Joey") (nom :s1)))))
+  [:and
+   [:and [:nom :s0] [:interdiction "Joey" "Punch" "Sausages"]]
+   [:pos :A [:and [:absentation "Joey"] [:nom :s1]]]])
 
-(def land
-  {:arity 2
-   :display (infix "^")
-   :action (fn [w p q]
-             (if (has-element? w p q)
-               (add w p)))})
 
-;; what if each connector were a macro?
 
-(def graph
-  [
-   {:id :s0
-    :contents [[:nom :s0] [:interdiction "Joey" "Punch" "Sausages"]]
-    :links [["A" :s1]]}])
 
 
 
