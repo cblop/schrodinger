@@ -7,23 +7,43 @@
 ;; connectors as data structures, rules as functions
 ;; strategies as functions too
 
+(def gdata
+  [{:id "0" :node [:and
+                   [:and [:nom :A] :X]
+                   [:pos :R [:and [:nom :B] :Y]]]
+    :links []}])
+
 (def data
   [:and
    [:and [:nom :A] :X]
    [:pos :R [:and [:nom :B] :Y]]])
 
-(defn rewrite [node]
+(defn land [{:keys [id node links] :as n}]
   (letfn [(mand [xs res]
             (if (or (keyword? xs) (empty? xs)) res
                 (match xs
                        [:and a b] (set (mapcat #(mand % (conj res a b)) (rest xs)))
                        [_ & _] (set (mapcat #(mand % res) (rest xs)))
-                       :else res))
-            )]
-    (mand node [])))
+                       :else res)))]
+    (assoc n :node (mand node []))
+    ))
 
+(defn mpos [xs res]
+  (if (or (keyword? xs) (empty? xs)) res
+      (match xs
+             [:and a b] (set (mapcat #(mand % (conj res a b)) (rest xs)))
+             [_ & _] (set (mapcat #(mand % res) (rest xs)))
+             :else res))
+  )
 
-(rewrite data)
+(defn rewrite [graph]
+  (-> graph
+      (first)
+      (land)
+       ))
+;; map using an atom?
+
+(rewrite gdata)
 
 
 (def sausages
